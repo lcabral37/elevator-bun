@@ -1,0 +1,14 @@
+# dependencies (bun install)
+node_modules
+
+# output
+out
+dist
+*.tgz
+
+!.gitignore
+.??*
+
+coverage
+
+logs
