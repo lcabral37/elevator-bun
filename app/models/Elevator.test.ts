@@ -38,8 +38,34 @@ describe('elevator', () => {
   });
   test('TextInfo() should return a list of buttons labels and order', () => {
     const elevator = new Elevator(3);
-    elevator.queue.push({floor: 3, direction: Direction.NONE})
-    elevator.queue.push({floor: 4, direction: Direction.DOWN})
+    elevator.queue.push({ floor: 3, direction: Direction.NONE });
+    elevator.queue.push({ floor: 4, direction: Direction.DOWN });
     expect(elevator.textInfo()).toEqual('0 1 2 << 30,4-1');
   });
+
+  describe('tick()', () => {
+    test('when Idle it starts going up to the middle floor', () => {
+      const elevator = new Elevator(8, 0.1, 10);
+      elevator.idleSince = elevator.now() - 11;
+
+      elevator.tick();
+
+      expect(elevator.next).toEqual(4);
+      expect(elevator.currentSpeed).toEqual(0.1);
+      expect(elevator.floor).toEqual(0.1);
+    });
+
+    test('when Idle it starts going down to the middle floor', () => {
+      const elevator = new Elevator(8, 0.1, 10);
+      elevator.floor = 6;
+      elevator.idleSince = elevator.now() - 11;
+
+      elevator.tick();
+
+      expect(elevator.next).toEqual(4);
+      expect(elevator.currentSpeed).toEqual(-0.1);
+      expect(elevator.floor).toEqual(5.9);
+    });
+  });
+
 });

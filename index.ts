@@ -3,7 +3,7 @@ import { Elevator } from "./app/models/Elevator";
 import { Floor } from "./app/models/Floor";
 
 const floorCount = 8;
-const refresh = 500;
+const refresh = 200;
 const speed = 0.1;
 let order = 'idle';
 
@@ -19,7 +19,7 @@ const floors = Array.from(Array(floorCount)).map((_, floor) => new Floor({
 
 function iteration(): void {
   console.clear();
-  console.log(`Elevator ${elevator.floor} (${elevator.currentSpeed} - ${order})`);
+  console.log(`Elevator ${elevator.floor} (S${elevator.currentSpeed} - F${elevator.next})`);
   console.log(elevator.textInfo());
   [...floors].reverse().forEach(floor => {
     const elevatorIsHere = floor.floor === Math.round(elevator.floor);
@@ -38,12 +38,12 @@ function iteration(): void {
 async function waitForTextInput(): Promise<void> {
   const ir = new InputService(elevator.events);
   for await (const line of console) {
-    console.log(`You typed: ${line}`);
     order = `${line}`;
     ir.sendCommand(`${line}`);
   }
 }
 
 setInterval(iteration, refresh);
+setInterval(() => elevator.tick(), refresh);
 waitForTextInput();
 
