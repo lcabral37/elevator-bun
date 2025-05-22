@@ -25,12 +25,12 @@ function iteration(): void {
     const elevatorIsHere = floor.floor === Math.round(elevator.floor);
     let elPlaceholder = '   ';
     if (elevatorIsHere) {
-      elPlaceholder = elevator.currentSpeed === 0 ? '[ ]' : '[X]';
+      elPlaceholder = elevator.stoppedBy ? '[ ]' : '[X]';
     }
     console.log(`${elPlaceholder} | ${floor.textInfo()} |`);
   });
   console.log('_______________________________________');
-  console.log(` - type E[N] to press a elevator button`);
+  console.log(` - type N to press a elevator button`);
   console.log(` - type [N][U|D] To press the Floor [0..${floors.length}], button [U]p or [D]own`);
   console.log(` Press [Enter] after the command`);
 }

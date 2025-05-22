@@ -17,7 +17,7 @@ describe('InputService', () => {
   });
 
   test('handles a elevator click', () => {
-    ir.sendCommand('E1');
+    ir.sendCommand('1');
     expect(lastOrder).toEqual({ floor: 1, direction: Direction.NONE });
   });
 
@@ -32,7 +32,7 @@ describe('InputService', () => {
 
   describe('ignores', () => {
     test('out of range elevator buttons', () => {
-      ir.sendCommand('E8');
+      ir.sendCommand('8');
       expect(lastOrder).toBeUndefined();
     });
 

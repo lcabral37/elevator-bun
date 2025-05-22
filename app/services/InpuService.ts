@@ -6,20 +6,26 @@ import { Direction, type EventOrder } from "../types";
  * It emits an event via a EventEmitter to signal the button in a floor or the elevator.
  */
 export class InputService {
+  private validDirections = {
+    'U': Direction.UP,
+    'D': Direction.DOWN
+  };
 
   constructor(private events: EventEmitter<EventOrder>, private floors = 8) { }
 
   sendCommand(text: string) {
-    const [arg1, arg2] = text.toUpperCase().split('');
-    if (arg1 === 'E' && this.isValidFloor(arg2)) {
-      const floor = parseInt(arg2!);
-      this.events.emit('pressed', { floor, direction: Direction.NONE });
-    } else if (this.isValidFloor(arg1)) {
-      const floor = parseInt(arg1!);
-      if (arg2 === 'U') {
-        this.events.emit('pressed', { floor, direction: Direction.UP });
-      } else if (arg2 === 'D') {
-        this.events.emit('pressed', { floor, direction: Direction.DOWN });
+    const [rawFloor, rawDirection] = text.toUpperCase().split('');
+    if (this.isValidFloor(rawFloor)) {
+      {
+        const floor = parseInt(rawFloor!);
+        if (!rawDirection) {
+          this.events.emit('pressed', { floor, direction: Direction.NONE });
+        } else {
+          const direction = this.validDirections[rawDirection.toUpperCase() as 'U' | 'D'];
+          if (direction) {
+            this.events.emit('pressed', { floor, direction });
+          }
+        }
       }
     }
   }
@@ -27,7 +33,7 @@ export class InputService {
   private isValidFloor(text: string | undefined): boolean {
     try {
       const floor = parseInt(text!);
-      return floor >= 0 && floor < this.floors - 1;
+      return floor >= 0 && floor < this.floors;
     } catch (e) {
       return false;
     }

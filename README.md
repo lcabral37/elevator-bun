@@ -27,7 +27,7 @@ bun index.ts
 ```
 
 Current interaction allows for typing in commands from the terminal in simple syntax
-For pressing a button in the elevator, type E followed by the floor number
+For pressing a button in the elevator, type a number followed by Enter.
 For pressing a floor button, type a number corresponding to the floor followed by
 _U_ (Up) or _D_ (Down)
 
