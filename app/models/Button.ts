@@ -29,6 +29,6 @@ export class Button {
   }
 
   public textInfo() {
-    return this.light ? `\033[1m${this.label}\033[0m` : this.label;
+    return this.light ? `\x1b[32m${this.label}\x1b[0m` : this.label;
   }
 }

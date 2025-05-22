@@ -45,7 +45,7 @@ describe('Button', () => {
   });
   test('textInfo() show the highlighted button label', () => {
     button.press();
-    expect(button.textInfo()).toEqual('\033[1mUp\033[0m');
+    expect(button.textInfo()).toEqual('\x1b[32mUp\x1b[0m');
   });
 
   test('ignores pressed command for other floors', () => {
