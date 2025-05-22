@@ -1,12 +1,12 @@
 import { beforeAll, beforeEach, describe, expect, test } from "bun:test";
 import { EventEmitter } from "stream";
-import { Direction, type EventOrder, type Order } from "./types";
-import { InputResolver } from "./InputResolver";
+import { Direction, type EventOrder, type Order } from "../types";
+import { InputService } from "./InpuService";
 
-describe('InputResolver', () => {
+describe('InputService', () => {
   const ee = new EventEmitter<EventOrder>();
   let lastOrder: Order | undefined;
-  const ir = new InputResolver(ee, 8);
+  const ir = new InputService(ee, 8);
 
   beforeAll(() => {
     ee.on('pressed', (order) => lastOrder = order);

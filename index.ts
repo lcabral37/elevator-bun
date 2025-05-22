@@ -1,4 +1,4 @@
-import { InputResolver } from "./app/InputResolver";
+import { InputService } from "./app/services/InpuService";
 import { Elevator } from "./app/models/Elevator";
 import { Floor } from "./app/models/Floor";
 
@@ -36,7 +36,7 @@ function iteration(): void {
 }
 
 async function waitForTextInput(): Promise<void> {
-  const ir = new InputResolver(elevator.events);
+  const ir = new InputService(elevator.events);
   for await (const line of console) {
     console.log(`You typed: ${line}`);
     order = `${line}`;

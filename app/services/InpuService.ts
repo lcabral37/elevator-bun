@@ -1,11 +1,11 @@
 import type { EventEmitter } from "stream";
-import { Direction, type EventOrder } from "./types";
+import { Direction, type EventOrder } from "../types";
 
 /**
  *  Handles text inputs and determines what command the user typed.
  * It emits an event via a EventEmitter to signal the button in a floor or the elevator.
  */
-export class InputResolver {
+export class InputService {
 
   constructor(private events: EventEmitter<EventOrder>, private floors = 8) { }
 
