@@ -14,6 +14,24 @@ There are buttons inside the elevator as well which lets the passengers select f
 4.  When the elevator arrives at the requested floor the call button's light should be switched off.
 5.  The door opens and closes again when the passenger selects a floor from within the elevator.
 6.  When the elevator is going up or down the elevator is expected to make intermediate stops at floors with passenger wanting to travel in the same direction.
-    * Ex. Given an elevator going from 2nd to 7th floor: If someone on the 4th floor calls the elevator requesting to go up the elevator is expected to stop at 4th floor before completing it's trip to 7th floor.
-    * If someone on the 4th floor calls the elevator requesting to go down the elevator should go to 7th first before going to 4th floor.
+    - Ex. Given an elevator going from 2nd to 7th floor: If someone on the 4th floor calls the elevator requesting to go up the elevator is expected to stop at 4th floor before completing it's trip to 7th floor.
+    - If someone on the 4th floor calls the elevator requesting to go down the elevator should go to 7th first before going to 4th floor.
 7.  The building has 7 floors. When the elevator has been idle for two minutes the elevator is expect to go to 4th floor.
+
+## Running the application
+
+To run the application run
+
+```
+bun index.ts
+```
+
+That is it! It does nothing else as of yet.
+
+## Testing
+
+To test run
+
+```
+bun test --coverage
+```
