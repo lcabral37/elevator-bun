@@ -50,13 +50,18 @@ export class Elevator extends WithButtons {
   }
 
   private setupEventListeners() {
-    this.events.on('press', (order: Order) => {
-      this.queue.push(order);
-    });
+    this.events.on('press', (order: Order) => this.addOrder(order));
+    this.events.on('pressed', (order: Order) => this.addOrder(order));
+  }
 
-    this.events.on('pressed', (order: Order) => {
+  private addOrder(order: Order) {
+    if (order.floor === this.floor && this.checkIfStoppedBy()) {
+      // hold the door open
+      this.stopBy();
+    } else if (!this.queue.find(o => o.floor === order.floor && o.direction === order.direction)) {
+      // Add it only if not already in the queue
       this.queue.push(order);
-    });
+    }
   }
 
   public textInfo(): string {
