@@ -66,6 +66,27 @@ describe('elevator', () => {
       expect(elevator.currentSpeed).toEqual(-0.1);
       expect(elevator.floor).toEqual(5.9);
     });
+
+    test('it picks a floor from the go and goes to it', () => {
+      const elevator = new Elevator(8, 0.5);
+      elevator.floor = 0;
+      elevator.queue.push({ floor: 3, direction: Direction.DOWN });
+
+      [...Array(10)].forEach(() => elevator.tick());
+
+      expect(elevator.floor).toEqual(3);
+    });
+
+    test('when going up it does not stop unless its the exact ', () => {
+      const elevator = new Elevator(8, 0.1);
+      elevator.floor = 0;
+      elevator.queue.push({ floor: 3, direction: Direction.NONE }); //elevator press
+      elevator.queue.push({ floor: 1, direction: Direction.UP }); //1st floor wants to go  up
+
+      [...Array(9)].forEach(() => elevator.tick());
+
+      expect(elevator.currentSpeed).toBe(0.1);
+    });
   });
 
 });

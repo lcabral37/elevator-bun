@@ -31,6 +31,11 @@ For pressing a button in the elevator, type E followed by the floor number
 For pressing a floor button, type a number corresponding to the floor followed by
 _U_ (Up) or _D_ (Down)
 
+The button order is queue, if it happens to stop by and heading the same direction, it stops
+Or if it was pressed from the inside the elevator it stops
+If the elevator is idle for 2m then it goes to floor 4
+
+
 ## Testing
 
 To test run

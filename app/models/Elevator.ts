@@ -1,5 +1,5 @@
 import { EventEmitter } from "stream";
-import { type EventOrder, type Order } from "../types";
+import { Direction, type EventOrder, type Order } from "../types";
 import { Button } from "./Button";
 import { WithButtons } from "./WithButtons";
 
@@ -9,6 +9,12 @@ export class Elevator extends WithButtons {
   public next: number = 0;
 
   public currentSpeed: number = 0;
+  // To signal it is not on the way to some floor
+
+  public stopped: boolean = true;
+  // when stopping by a floor
+  public stoppedBy: boolean = false;
+  public stoppedBySince: number;
 
   public events = new EventEmitter<EventOrder>();
   public queue: Order[] = [];
@@ -17,15 +23,18 @@ export class Elevator extends WithButtons {
    *
    * @param floors  Total number of floors
    * @param speed this represents what distance the elevator moves per iteration
-   * @param maxIdle
+   * @param maxIdleSecs
    */
   constructor(
     private floors: number,
     private speed: number = 0.1,
-    private maxIdle = 180
+    private maxIdleSecs = 180,
+    private maxStopBySecs = 3
+
   ) {
     super();
     this.idleSince = this.now();
+
     // Got an exception with having too many event listeners...
     // Internet said this fixed it
     this.events.setMaxListeners(0);
@@ -61,8 +70,25 @@ export class Elevator extends WithButtons {
   }
 
   public tick() {
-    if (this.next === this.floor) {
-      this.currentSpeed = 0;
+    if (this.checkIfStoppedBy()) {
+      return;
+    }
+
+    if (this.queue.length) {
+      //If stopped  tries to pick  something from the queue
+      if (this.stopped) {
+        const next = this.queue.shift();
+        this.goTo(next!.floor);
+        this.startMoving();
+      } else if (this.shouldStop()) {
+        this.stopBy();
+      }
+    }
+
+    // If it reaches the floor then it stops
+    if (this.next === this.floor && this.currentSpeed) {
+      this.stop(true);
+      this.events.emit('atFloor', this.floor);
     }
 
     if (this.isIdle()) {
@@ -72,10 +98,66 @@ export class Elevator extends WithButtons {
     this.move();
   }
 
-  public move() {
+  // Check if any of the queue requests is valid to stop by
+  private shouldStop(): boolean {
+    //needs to be an exact number
+    if (this.floor !== Math.round(this.floor)) {
+      return false;
+    }
+
+    // If the a button in the elevator was pressed, it stops
+    const matchElevatorOrder = this.queue.findIndex(
+      order => order.floor === this.floor && order.direction === Direction.NONE
+    );
+    if (matchElevatorOrder >= 0) {
+      this.queue.splice(matchElevatorOrder, 1);
+      return true;
+    }
+
+    // If the elevator is going in the same direction the floor button was pressed it stops
+    const currentDirection = this.currentSpeed > 0
+      ? Direction.UP
+      : Direction.DOWN;
+    const matchFloorDirectionOrder = this.queue.findIndex(
+      order => order.floor === this.floor && order.direction === currentDirection
+    );
+    if (matchFloorDirectionOrder >= 0) {
+      this.queue.splice(matchFloorDirectionOrder, 1);
+      return true;
+    }
+
+    return false;
+  }
+
+  private stop(fullStop: boolean = false) {
+    this.currentSpeed = 0;
+    this.stopped = fullStop;
+  }
+
+  /**
+   * Stops by a Floor
+   * This can be used for in transit stop
+   * or also when the button in the same floor is pressed
+   */
+  public stopBy() {
+    this.stoppedBy = true;
+    this.stoppedBySince = this.now();
+  }
+
+  public checkIfStoppedBy(): boolean {
+    if (this.stoppedBy && this.stoppedBySince + this.maxStopBySecs > this.now()) {
+      return true;
+    }
+    this.stoppedBy = false;
+    return false;
+  }
+
+  // Updates the floor partial location
+  private move() {
     if (this.currentSpeed) {
       this.floor = Math.round((this.floor + this.currentSpeed) * 10) / 10;
       this.idleSince = this.now();
+      this.stopped = false;
     }
   }
 
@@ -83,7 +165,7 @@ export class Elevator extends WithButtons {
     return this.queue.length === 0
       && this.currentSpeed === 0
       && this.floor !== Math.ceil(this.floors / 2)
-      && this.idleSince + this.maxIdle < this.now();
+      && this.idleSince + this.maxIdleSecs < this.now();
   }
 
   public goTo(floor: number) {
@@ -91,6 +173,7 @@ export class Elevator extends WithButtons {
   }
 
   public startMoving() {
+    this.stopped = false;
     this.currentSpeed = this.next > this.floor
       ? this.speed
       : (-this.speed);
