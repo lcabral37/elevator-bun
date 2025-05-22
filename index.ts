@@ -1,13 +1,49 @@
-import { Elevator } from "./models/Elevator";
+import { InputResolver } from "./app/InputResolver";
+import { Elevator } from "./app/models/Elevator";
+import { Floor } from "./app/models/Floor";
 
-const speed = 0.2;
+const floorCount = 8;
+const refresh = 500;
+const speed = 0.1;
+let order = 'idle';
 
-const elevator = new Elevator();
 
-function iteration() {
+const elevator = new Elevator(floorCount, speed);
+const floors = Array.from(Array(floorCount)).map((_, floor) => new Floor({
+  floor,
+  ...(floor === 0 ? { label: 'Lobby' } : {}),
+  hasDown: floor !== 0,
+  hasUp: floor !== floorCount - 1,
+  events: elevator.events
+},));
+
+function iteration(): void {
   console.clear();
-  console.log('Elevator');
-  console.log(`${elevator.floor} (${elevator.speed})`);
+  console.log(`Elevator ${elevator.floor} (${elevator.currentSpeed} - ${order})`);
+  console.log(elevator.textInfo());
+  [...floors].reverse().forEach(floor => {
+    const elevatorIsHere = floor.floor === Math.round(elevator.floor);
+    let elPlaceholder = '   ';
+    if (elevatorIsHere) {
+      elPlaceholder = elevator.currentSpeed === 0 ? '[ ]' : '[X]';
+    }
+    console.log(`${elPlaceholder} | ${floor.textInfo()} |`);
+  });
+  console.log('_______________________________________');
+  console.log(` - type E[N] to press a elevator button`);
+  console.log(` - type [N][U|D] To press the Floor [0..${floors.length}], button [U]p or [D]own`);
+  console.log(` Press [Enter] after the command`);
 }
 
-setInterval(iteration, speed);
+async function waitForTextInput(): Promise<void> {
+  const ir = new InputResolver(elevator.events);
+  for await (const line of console) {
+    console.log(`You typed: ${line}`);
+    order = `${line}`;
+    ir.sendCommand(`${line}`);
+  }
+}
+
+setInterval(iteration, refresh);
+waitForTextInput();
+
