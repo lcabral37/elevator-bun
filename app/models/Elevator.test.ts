@@ -1,3 +1,4 @@
+import { InputService } from "../services/InpuService";
 import { Direction } from "../types";
 import { Elevator } from "./Elevator";
 import { expect, test, describe, beforeEach } from "bun:test";
@@ -87,6 +88,38 @@ describe('elevator', () => {
 
       expect(elevator.currentSpeed).toBe(0.1);
     });
+
+
+    test('when pressing both buttons in a floor  when it reaches there both buttons should be turned off', () => {
+      const elevator = new Elevator(8, 1);
+      const ir = new InputService(elevator.events);
+
+      ir.sendCommand('4u');
+      ir.sendCommand('4d');
+
+
+      tickUntil(elevator, () => elevator.floor === 4)
+      ir.sendCommand('7');
+      ir.sendCommand('2');
+
+      tickUntil(elevator, () => elevator.floor === 4)
+
+
+      expect(elevator.floor).toEqual(7)
+      expect(elevator.queue.length).toBe(1);
+
+      [...Array(7)].forEach(() => elevator.tick());
+
+      expect(elevator.queue).toBeEmpty();
+      expect(elevator.floor).toEqual(2)
+
   });
+});
 
 });
+
+function tickUntil(elevator: Elevator, fn:  () => boolean ) {
+  while(!fn()) {
+    elevator.tick()
+  }
+}

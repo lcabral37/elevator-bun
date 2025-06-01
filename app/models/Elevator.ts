@@ -90,6 +90,7 @@ export class Elevator extends WithButtons {
       }
     }
 
+
     // If it reaches the floor then it stops
     if (this.next === this.floor && this.currentSpeed) {
       this.stop(true);
@@ -147,6 +148,7 @@ export class Elevator extends WithButtons {
   public stopBy() {
     this.stoppedBy = true;
     this.stoppedBySince = this.now();
+    this.events.emit('atFloor', this.floor)
   }
 
   public checkIfStoppedBy(): boolean {
